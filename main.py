@@ -1,9 +1,10 @@
+
 # code write : @JokerPython3
 import requests, random, SignerPy, secrets, os, uuid, json, binascii, time, math
 import numpy as np
 from io import BytesIO
 from PIL import Image, ImageFilter
-
+import uuid
 class CaptchaSolver:
     MODIFIED_IMG_WIDTH = 552
 
@@ -132,23 +133,38 @@ class LoginTikTok:
     agine = 0
     done_captch = 0
     error_captch = 0
+    # __rticket = int(time.time() * 1000)
+    # __openuid =binascii.hexlify(os.urandom(8)).decode()
+        #self.proxies={"http or https":"http://proxies or https:// proxies"}
+    # __ts = int(time.time())
+    # did =str(random.randint(1, 10**19))
+    # iid = str(random.randint(1, 10**19))
+    # __device_id =did
+    # __temp = int(time.time())
+    # __cdid =str(uuid.uuid4())
+    # se=secrets.token_hex(16)
+    #or your device_id , iid ......
+
     _2fa = 0
     def __init__(self,usernmae,password):
-        self.did = '7120973406393058822'
-        self.iid = '7514060577799620353'
+        #print(self.__device_id)
+        self.did =str(random.randint(1, 10**19))
+        self.iid = str(random.randint(1, 10**19))
+        #print(self.iid)
         #self.proxies={"http or https":"http://proxies or https:// proxies"}
         self.proxies ={'http':'http://3.127.121.101:80'}
-        self.__device_id ='7120973406393058822'
-        self.__temp = '1749504907301'
-        self.__cdid = 'b79c2274-1499-4cf0-a674-f0ffb744794c'
+        self.__device_id =self.did
+        self.__temp = int(time.time())
+        self.__cdid =str(uuid.uuid4())
+        self.se=secrets.token_hex(16)
         self.__cookies = {
-            "passport_csrf_token": "81bcd272c1c2d5103fd9344755fb9070",
-            "passport_csrf_token_default": '81bcd272c1c2d5103fd9344755fb9070',
-            'install_id': '7514060577799620353'
+            "passport_csrf_token":self.se,
+            "passport_csrf_token_default": self.se,
+            'install_id':self.iid,
         }
-        self.__rticket = '1749504918515'
-        self.__openuid ='84a10deae01ca4fe'
-        self.__ts = '1749504917'
+        self.__rticket = int(time.time() * 1000)
+        self.__openuid =binascii.hexlify(os.urandom(8)).decode()
+        self.__ts = int(time.time())
         self.username = usernmae
         self.password = password
         self.version_code = "310503"
@@ -156,7 +172,7 @@ class LoginTikTok:
         self.session = requests.session()
         self.secret = secrets.token_hex(16)
         self.device_info = "pgJDP6dPgpe6hZqtld52beK1BLX9iTqF40gMOgEMSTQU4VYWIiavfEF_96xND3G5PcgYPxZpW1FcE9etEdS7wFALTJRMd2k0ovF_huEZDgwSqGB-8b2Zff7nHuLXO1iJDlTeIVQnNJzRSQr25jBC8yifDJsbVOkc3KZejx-cI2Q"
-
+#or your device_id , iid ......
     def login(self):
 
         url = "https://api16-normal-c-alisg.tiktokv.com/passport/user/login/"
@@ -233,7 +249,7 @@ class LoginTikTok:
         headerss = {
             'User-Agent': "com.zhiliaoapp.musically/2023105030 (Linux; U; Android 11; ar; RMX3269; Build/RP1A.201005.001; Cronet/TTNetVersion:2fdb62f9 2023-09-06 QuicVersion:bb24d47c 2023-07-19)",
 
-            'x-tt-passport-csrf-token': "81bcd272c1c2d5103fd9344755fb9070",
+            'x-tt-passport-csrf-token': secrets.token_hex(16),
 
         }
         signature = SignerPy.sign(params=paramss, payload=payload,cookie=self.__cookies)
@@ -247,8 +263,10 @@ class LoginTikTok:
          })
 
         response = requests.post(url, data=payload, headers=headerss, params=paramss,cookies=self.__cookies,proxies=self.proxies) #,proxies=self.proxies
-        print(response.json())
-        if 'Drag slider to verify' in response.text:
+        # print("========[Login]========")
+        #print(response.json())
+        # print("========[Login]========")
+        if 'verify_center_decision_conf' in response.text:
             LoginTikTok.captch +=1
             print(
                 f"Hit : {LoginTikTok.hit} | Bad : {LoginTikTok.bad} | captch: {LoginTikTok.captch} | error_captch : {LoginTikTok.error_captch} | try agine : {LoginTikTok.agine} | 2fa : {LoginTikTok._2fa} | done captch : {LoginTikTok.done_captch}")
@@ -261,7 +279,7 @@ class LoginTikTok:
             self.__get_captch(de,sev)
             return
         elif 'Maximum number of attempts reached. Try again later.' in response.text:
-            self.agine += 1
+            LoginTikTok.agine += 1
             print(
                 f"Hit : {LoginTikTok.hit} | Bad : {LoginTikTok.bad} | captch: {LoginTikTok.captch} | error_captch : {LoginTikTok.error_captch} | try agine : {LoginTikTok.agine} | 2fa : {LoginTikTok._2fa} | done captch : {LoginTikTok.done_captch}")
 
@@ -273,7 +291,7 @@ class LoginTikTok:
             return
         elif 'verify_ticket' in response.text:
             LoginTikTok._2fa +=1
-            print(response.cookies.get_dict())
+       
             print(
                 f"Hit : {LoginTikTok.hit} | Bad : {LoginTikTok.bad} | captch: {LoginTikTok.captch} | error_captch : {LoginTikTok.error_captch} | try agine : {LoginTikTok.agine} | 2fa : {LoginTikTok._2fa} | done captch : {LoginTikTok.done_captch}")
             with open("2fa.txt","a") as f:
@@ -282,7 +300,7 @@ class LoginTikTok:
             return
         elif 'session_key' in response.text:
             LoginTikTok.hit += 1
-            sessionid = requests.json()['data']['session_key']
+            sessionid = response.json()['data']['session_key']
             print(
                 f"Hit : {LoginTikTok.hit} | Bad : {LoginTikTok.bad} | captch: {LoginTikTok.captch} | error_captch : {LoginTikTok.error_captch} | try agine : {LoginTikTok.agine} | 2fa : {LoginTikTok._2fa} | done captch : {LoginTikTok.done_captch}")
 
@@ -293,7 +311,6 @@ class LoginTikTok:
             with open("js.txt","a",encoding="utf-8") as f:
                 f.write(response.text)
             return
-
 
     def __get_captch(self,de,sev):
         time.sleep(1)
@@ -350,7 +367,7 @@ class LoginTikTok:
             "browser_platform": "Linux aarch64",
             "browser_name": "Mozilla",
             "browser_version": "5.0 (Linux; Android 11; RMX3269 Build/RP1A.201005.001; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/136.0.7103.127 Mobile Safari/537.36 BytedanceWebview/d8a21c6",
-            "device_redirect_info": self.device_info
+             "device_redirect_info": self.device_info
             }
 
         headers = {
@@ -372,7 +389,9 @@ class LoginTikTok:
              })
 
         res = requests.get(url, headers=headers, params=params,cookies=self.__cookies,proxies=self.proxies).json()  #,proxies=self.proxies
-        #print(res)
+        # print("========[Captch Get]========")
+        # print(res)
+        # print("========[Captch Get]========")
         try:
 
 
@@ -463,16 +482,21 @@ class LoginTikTok:
              })
 
             response = self.session.post(url, data=cap, headers=headers, params=params,cookies=self.__cookies,proxies=self.proxies)#,proxies=self.proxies
-
-            #print(response.json())
+            print("==========[verify captch]============")
+            print(response.json())
+            print("==========[verify captch]============")
             if 'Verification complete' in response.text:
-
-                #self.login()
-#اذا تريد تكرر فحص للحساب امسح تعليق من self.login يعني يضل يفحص حتى يتاكد بل اخير تحياتي لمام نترو
                 LoginTikTok.done_captch +=1
+                 
+
+
                 print(
                     f"Hit : {LoginTikTok.hit} | Bad : {LoginTikTok.bad} | captch: {LoginTikTok.captch} | error_captch : {LoginTikTok.error_captch} | try agine : {LoginTikTok.agine} | 2fa : {LoginTikTok._2fa} | done captch : {LoginTikTok.done_captch}")
 
+
+                #self.login()
+#اذا تريد تكرر فحص للحساب امسح تعليق من self.login يعني يضل يفحص حتى يتاكد بل اخير تحياتي لمام نترو
+               
             else:
                 LoginTikTok.error_captch+=1
                 print(
